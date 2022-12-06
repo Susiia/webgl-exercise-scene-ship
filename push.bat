@@ -7,6 +7,6 @@ echo commit 提交完成!
 echo 推送中...
 git push gitee master
 git push gitlab master
-@REM git push github master
+git push github master
 echo 推送完成!
 pause
