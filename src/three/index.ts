@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-05-26 16:29:25
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-06 14:36:17
+ * @LastEditTime: 2022-12-06 16:47:42
  */
 import {
   AnimationMixer,
@@ -21,41 +21,50 @@ import {
 import { CollisionController } from "./octreeCollision";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import parallaxTranslationController from "./parallaxTranslationController";
 export default class {
   private canvas!: HTMLCanvasElement; // canvas
   private renderer!: WebGLRenderer; // renderer
   private scene!: Scene; // Scene
   private camera!: PerspectiveCamera; // camera
-  private controls!: CollisionController; // 控制器
-  private mixer!:AnimationMixer
-  private clock = new Clock()
+  private controls!: parallaxTranslationController; // 控制器
+  private mixer!: AnimationMixer;
+  private clock = new Clock();
   constructor(canvas: HTMLCanvasElement | undefined) {
     if (canvas) {
       this.canvas = canvas;
       this.initThree();
       this.defaultCamera();
       this.defaultLight();
+      // 加载模型
       this.modelLoader(
         "/public/model/ship.glb",
         true,
-        undefined,
-        undefined,
+        (process) =>
+          console.log(
+            `loading:${Math.trunc((process.loaded / process.total) * 100)}`
+          ),
+        () => console.log("loaded"),
         undefined,
         (model) => {
           // 设置相机位置
-          if (this.scene.getObjectByName("cameraPosition")){
+          if (this.scene.getObjectByName("cameraPosition")) {
             this.camera.position.copy(
               this.scene.getObjectByName("cameraPosition")!.position
             );
           }
           // 动画
-          console.log(model);
           this.mixer = new AnimationMixer(this.scene);
           const clips = model.animations;
-          console.log(clips);
-          clips.forEach( ( clip )=>{
-            this.mixer.clipAction( clip ).play();
-          } );
+          clips.forEach((clip) => {
+            this.mixer.clipAction(clip).play();
+          });
+          // 视差平移控制器
+          this.controls = new parallaxTranslationController(
+            this.camera,
+            this.canvas,
+            model.scene.getObjectByName("cameraPosition")!.position,
+          );
         }
       );
       // TODO: 后处理
@@ -82,9 +91,8 @@ export default class {
 
   // 渲染循环
   private renderLoop() {
-    const delta = this.clock.getDelta()
+    const delta = this.clock.getDelta();
     this.renderer.render(this.scene, this.camera);
-    this.controls?.update();
     this.mixer?.update(delta);
   }
 
@@ -114,12 +122,12 @@ export default class {
     // this.scene.add(light)
   }
 
-  // 模型加载
+  // 加载模型
   private modelLoader(
     path: string,
     autoAddToScene?: boolean,
-    onLoading?: (process: ProgressEvent<EventTarget>) => {},
-    onLoadded?:()=>{},
+    onLoading?: (process: ProgressEvent<EventTarget>) => void,
+    onLoadded?: () => void,
     onBeforeAddToScene?: (model: GLTF) => void,
     onAfterAddToScene?: (model: GLTF) => void
   ) {
@@ -130,9 +138,8 @@ export default class {
     loader.load(
       path,
       (model) => {
-        console.log("loaded");
-        if(onLoadded)onLoadded()
-        if (autoAddToScene || autoAddToScene === undefined){
+        if (onLoadded) onLoadded();
+        if (autoAddToScene || autoAddToScene === undefined) {
           if (onBeforeAddToScene) onBeforeAddToScene(model);
           this.scene.add(model.scene);
           if (onAfterAddToScene) onAfterAddToScene(model);
@@ -140,17 +147,10 @@ export default class {
       },
       (process) => {
         if (onLoading) onLoading(process);
-        console.log("loading");
       },
       (errorInfo) => {
         console.log(errorInfo);
       }
     );
-  }
-
-  // 视差平移控制器
-  public cameraControl(mouseX:number, mouseY:number) {
-    this.camera.position.x = this.scene.getObjectByName("cameraPosition")!.position.x-this.canvas.width/10000/2+mouseX/10000
-    this.camera.position.y = this.scene.getObjectByName("cameraPosition")!.position.y+this.canvas.height/10000/2-mouseY/10000
   }
 }
