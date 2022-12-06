@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-05-26 16:29:25
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-06 16:47:42
+ * @LastEditTime: 2022-12-06 20:27:27
  */
 import {
   AnimationMixer,
@@ -22,6 +22,7 @@ import { CollisionController } from "./octreeCollision";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import parallaxTranslationController from "./parallaxTranslationController";
+import modelLoader from "./modelLoader";
 export default class {
   private canvas!: HTMLCanvasElement; // canvas
   private renderer!: WebGLRenderer; // renderer
@@ -37,20 +38,21 @@ export default class {
       this.defaultCamera();
       this.defaultLight();
       // 加载模型
-      this.modelLoader(
+      modelLoader(
         "/public/model/ship.glb",
+        this.scene,
         true,
         (process) =>
           console.log(
             `loading:${Math.trunc((process.loaded / process.total) * 100)}`
           ),
         () => console.log("loaded"),
-        undefined,
+        () => {},
         (model) => {
           // 设置相机位置
-          if (this.scene.getObjectByName("cameraPosition")) {
+          if (model.scene.getObjectByName("cameraPosition")) {
             this.camera.position.copy(
-              this.scene.getObjectByName("cameraPosition")!.position
+              model.scene.getObjectByName("cameraPosition")!.position
             );
           }
           // 动画
@@ -63,7 +65,7 @@ export default class {
           this.controls = new parallaxTranslationController(
             this.camera,
             this.canvas,
-            model.scene.getObjectByName("cameraPosition")!.position,
+            model.scene.getObjectByName("cameraPosition")!.position
           );
         }
       );
@@ -120,37 +122,5 @@ export default class {
     env.mapping = EquirectangularReflectionMapping;
     this.scene.environment = env;
     // this.scene.add(light)
-  }
-
-  // 加载模型
-  private modelLoader(
-    path: string,
-    autoAddToScene?: boolean,
-    onLoading?: (process: ProgressEvent<EventTarget>) => void,
-    onLoadded?: () => void,
-    onBeforeAddToScene?: (model: GLTF) => void,
-    onAfterAddToScene?: (model: GLTF) => void
-  ) {
-    const loader = new GLTFLoader();
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath("/lib/draco/");
-    loader.setDRACOLoader(dracoLoader);
-    loader.load(
-      path,
-      (model) => {
-        if (onLoadded) onLoadded();
-        if (autoAddToScene || autoAddToScene === undefined) {
-          if (onBeforeAddToScene) onBeforeAddToScene(model);
-          this.scene.add(model.scene);
-          if (onAfterAddToScene) onAfterAddToScene(model);
-        }
-      },
-      (process) => {
-        if (onLoading) onLoading(process);
-      },
-      (errorInfo) => {
-        console.log(errorInfo);
-      }
-    );
   }
 }
