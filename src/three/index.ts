@@ -4,39 +4,39 @@
  * @Author: 刘译蓬
  * @Date: 2022-05-26 16:29:25
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-06 20:27:27
+ * @LastEditTime: 2022-12-07 00:10:49
  */
 import {
   AnimationMixer,
-  Camera,
   Clock,
   EquirectangularReflectionMapping,
-  Group,
+  HemisphereLight,
   PerspectiveCamera,
   Scene,
   TextureLoader,
-  Vector3,
   WebGLRenderer,
 } from "three";
-import { CollisionController } from "./octreeCollision";
-import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import parallaxTranslationController from "./parallaxTranslationController";
 import modelLoader from "./modelLoader";
+import initThree from "./initThree";
 export default class {
-  private canvas!: HTMLCanvasElement; // canvas
-  private renderer!: WebGLRenderer; // renderer
-  private scene!: Scene; // Scene
-  private camera!: PerspectiveCamera; // camera
+  private canvas: HTMLCanvasElement; // canvas
+  private renderer: WebGLRenderer; // renderer
+  private scene: Scene; // Scene
+  private camera: PerspectiveCamera; // camera
   private controls!: parallaxTranslationController; // 控制器
+  private renderLoop:Array<()=>void>
   private mixer!: AnimationMixer;
   private clock = new Clock();
-  constructor(canvas: HTMLCanvasElement | undefined) {
-    if (canvas) {
+  constructor(canvas: HTMLCanvasElement) {
       this.canvas = canvas;
-      this.initThree();
-      this.defaultCamera();
-      this.defaultLight();
+      this.camera = this.defaultCamera(); // 加载默认相机
+      // TODO：initThree方法整理到模板项目中
+      const {renderer,scene,renderLoop} = initThree(this.canvas,this.camera); // 初始化three
+      this.renderer = renderer
+      this.scene = scene
+      this.renderLoop = renderLoop
+      this.defaultLight(); // 加载默认灯光
       // 加载模型
       modelLoader(
         "/public/model/ship.glb",
@@ -61,6 +61,10 @@ export default class {
           clips.forEach((clip) => {
             this.mixer.clipAction(clip).play();
           });
+          this.renderLoop.push(()=>{
+            const delta = this.clock.getDelta();
+            this.mixer?.update(delta);
+          })
           // 视差平移控制器
           this.controls = new parallaxTranslationController(
             this.camera,
@@ -72,42 +76,11 @@ export default class {
       // TODO: 后处理
       // TODO: 粒子
       // TODO: 设备朝向相机
-    }
   }
-
-  // 初始化three渲染器和场景
-  private initThree() {
-    this.renderer = new WebGLRenderer({
-      canvas: this.canvas,
-      antialias: true,
-    });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.scene = new Scene();
-    this.renderer.setAnimationLoop(() => {
-      this.renderLoop();
-    });
-    window.addEventListener("resize", () => {
-      this.onWindowResize();
-    });
-  }
-
-  // 渲染循环
-  private renderLoop() {
-    const delta = this.clock.getDelta();
-    this.renderer.render(this.scene, this.camera);
-    this.mixer?.update(delta);
-  }
-
-  // viewResize
-  private onWindowResize() {
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
-    this.camera.updateProjectionMatrix();
-  }
-
+  
   // 默认相机
   private defaultCamera() {
-    this.camera = new PerspectiveCamera(
+    return new PerspectiveCamera(
       75,
       this.canvas.clientWidth / this.canvas.clientHeight,
       0.1,
@@ -117,10 +90,12 @@ export default class {
 
   // 默认灯光
   private defaultLight() {
-    // const light = new HemisphereLight(0xffffff, 0xcccccc, 1)
+    const light = new HemisphereLight(0xffffff, 0xcccccc, 1);
+    this.scene.add(light);
     const env = new TextureLoader().load("/public/img/Sky_Color.jpeg");
     env.mapping = EquirectangularReflectionMapping;
     this.scene.environment = env;
-    // this.scene.add(light)
   }
+
+  // TODO:射线
 }

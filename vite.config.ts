@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-11-25 16:29:19
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-11-29 11:34:45
+ * @LastEditTime: 2022-12-06 22:16:47
  */
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -16,5 +16,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 8080,
+    open: true,
   }
 })

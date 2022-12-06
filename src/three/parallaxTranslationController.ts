@@ -5,7 +5,7 @@ import { Camera, Vector3 } from "three";
  * @Author: 刘译蓬
  * @Date: 2022-12-06 14:09:31
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-06 16:50:28
+ * @LastEditTime: 2022-12-06 23:21:29
  */
 export default class {
     private camera: Camera;
@@ -34,8 +34,8 @@ export default class {
      * @return {*}
      */    
     private active = (event:MouseEvent)=>{
-        this.camera.position.x = this.centerPosition.x-this.canvas.width/10000/2+event.offsetX/10000
-        this.camera.position.y = this.centerPosition.y+this.canvas.height/10000/2-event.offsetY/10000
+        this.camera.position.x = this.centerPosition.x-this.canvas.clientWidth/10000/2+event.offsetX/10000
+        this.camera.position.y = this.centerPosition.y+this.canvas.clientWidth/10000/2-event.offsetY/10000
     }
     /**
      * @Descripttion:  移除控制器需要调用本方法移除鼠标监听
