@@ -1,7 +1,11 @@
 @echo off
 title gitCommitAndPush
-echo 准备提交...
+git pull gitee master
+git pull gitlab master
+git pull github master
+echo 准备提交,如果有冲突请ctrl+c结束后解决冲突...
 set /p var=请输入提交消息:
+git add .
 git commit -a -m %var%
 echo commit 提交完成!
 echo 推送中...
