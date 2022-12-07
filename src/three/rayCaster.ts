@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-12-07 23:35:57
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-07 23:46:37
+ * @LastEditTime: 2022-12-07 23:51:52
  */
 import {
   Camera,
@@ -19,11 +19,11 @@ import {
  * @Descripttion: 射线
  * @Author: 刘译蓬
  * @msg: 射线抓取方法
- * @param {Camera} Camera camera
- * @param {Scene} Scene scene
- * @param {Object3D[]} Object3D[] interactionObjects
- * @param {function} function hittingCallBack
- * @param {Array<() => void>} Array renderLoop
+ * @param {Camera} Camera 相机
+ * @param {Scene} Scene 场景
+ * @param {Object3D[]} Object3D[] 需要交互的object3d
+ * @param {function} function 命中后的回调，参数返回去命中的object3d
+ * @param {Array<() => void>} Array [可选]渲染循环，如果传了这玩应那射线就在渲染循环中进行，否则在window.mouseMove事件中执行
  * @return {*}
  */
 export default function (
