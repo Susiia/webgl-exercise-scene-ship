@@ -5,7 +5,7 @@ import { Camera, Vector3 } from "three";
  * @Author: 刘译蓬
  * @Date: 2022-12-06 14:09:31
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-06 23:21:29
+ * @LastEditTime: 2022-12-07 19:42:57
  */
 export default class {
     private camera: Camera;
@@ -20,10 +20,10 @@ export default class {
      * @param {Vector3} centerPosition Vector3:中心位置坐标（视差移动都是基于这个点来进行的）
      * @return {*}
      */    
-    constructor(camera: Camera,canvas: HTMLCanvasElement,centerPosition:Vector3) {
+    constructor(camera: Camera,canvas: HTMLCanvasElement,centerPosition?:Vector3) {
         this.camera = camera;
         this.canvas = canvas;
-        this.centerPosition = centerPosition;
+        this.centerPosition = centerPosition||this.camera.position.clone();
         this.canvas.addEventListener("mousemove",this.active)
     }
     /**

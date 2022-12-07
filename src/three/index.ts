@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-05-26 16:29:25
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-07 00:10:49
+ * @LastEditTime: 2022-12-07 19:43:02
  */
 import {
   AnimationMixer,
@@ -49,7 +49,7 @@ export default class {
         () => console.log("loaded"),
         () => {},
         (model) => {
-          // 设置相机位置
+          // 调整相机位置
           if (model.scene.getObjectByName("cameraPosition")) {
             this.camera.position.copy(
               model.scene.getObjectByName("cameraPosition")!.position
@@ -68,8 +68,7 @@ export default class {
           // 视差平移控制器
           this.controls = new parallaxTranslationController(
             this.camera,
-            this.canvas,
-            model.scene.getObjectByName("cameraPosition")!.position
+            this.canvas
           );
         }
       );
