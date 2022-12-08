@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-05-26 16:29:25
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-07 23:44:06
+ * @LastEditTime: 2022-12-08 14:12:14
  */
 import {
   AnimationMixer,
@@ -83,7 +83,7 @@ export default class {
           [this.scene.getObjectByName("Boot_Finaal_1")!],
           (hit) => {
             if (hit.object.name.indexOf("interaction_") !== -1) {
-              console.log(hit.object.name);
+              // console.log(hit.object.name);
               hit.object.scale.x = 2;
               hit.object.scale.y = 2;
               hit.object.scale.z = 2;
@@ -93,9 +93,6 @@ export default class {
         );
       }
     );
-    // TODO: 后处理
-    // TODO: 粒子
-    // TODO: 设备朝向相机
   }
 
   // 默认相机
