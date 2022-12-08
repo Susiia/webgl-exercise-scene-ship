@@ -4,7 +4,7 @@
  * @Author: 刘译蓬
  * @Date: 2022-12-07 23:35:57
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-07 23:51:52
+ * @LastEditTime: 2022-12-08 15:35:42
  */
 import {
   Camera,
@@ -31,6 +31,7 @@ export default function (
   scene: Scene,
   interactionObjects: Object3D[],
   hittingCallBack: (hit: Intersection) => void,
+  penetrationOfHit?: boolean,
   renderLoop?: Array<() => void>
 ) {
   const pointer = new Vector2();
@@ -38,9 +39,13 @@ export default function (
   // 需要循环的方法
   const looping = () => {
     const intersects = raycaster.intersectObjects(interactionObjects);
-    intersects.forEach((hit) => {
-      hittingCallBack(hit);
-    });
+    if (penetrationOfHit) {
+      intersects.forEach((hit) => {
+        hittingCallBack(hit);
+      });
+    } else {
+      if(intersects.length)hittingCallBack(intersects[0]);
+    }
   };
   // 事件
   window.addEventListener("pointermove", (event) => {

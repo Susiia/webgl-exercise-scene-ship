@@ -4,27 +4,25 @@
  * @Author: 刘译蓬
  * @Date: 2022-05-26 16:29:25
  * @LastEditors: 刘译蓬
- * @LastEditTime: 2022-12-08 14:12:14
+ * @LastEditTime: 2022-12-08 15:39:15
  */
 import {
   AnimationMixer,
-  Camera,
   Clock,
   EquirectangularReflectionMapping,
   HemisphereLight,
   Intersection,
   Object3D,
   PerspectiveCamera,
-  Raycaster,
   Scene,
   TextureLoader,
-  Vector2,
   WebGLRenderer,
 } from "three";
 import parallaxTranslationController from "./parallaxTranslationController";
 import modelLoader from "./modelLoader";
 import initThree from "./initThree";
 import rayCaster from "./rayCaster";
+import gsap from "gsap";
 export default class {
   private canvas: HTMLCanvasElement; // canvas
   private renderer: WebGLRenderer; // renderer
@@ -80,16 +78,10 @@ export default class {
         rayCaster(
           this.camera,
           this.scene,
-          [this.scene.getObjectByName("Boot_Finaal_1")!],
-          (hit) => {
-            if (hit.object.name.indexOf("interaction_") !== -1) {
-              // console.log(hit.object.name);
-              hit.object.scale.x = 2;
-              hit.object.scale.y = 2;
-              hit.object.scale.z = 2;
-            }
-          }
-          // this.renderLoop
+          this.scene.children,
+          (hit)=>this.hitting(hit),
+          false,
+          this.renderLoop
         );
       }
     );
@@ -112,5 +104,19 @@ export default class {
     const env = new TextureLoader().load("/public/img/Sky_Color.jpeg");
     env.mapping = EquirectangularReflectionMapping;
     this.scene.environment = env;
+  }
+
+  // hitting
+  private hitObject:Object3D|null = null
+  private hitting(hit:Intersection){
+    if (hit.object.name.indexOf("interaction_") !== -1) {
+      this.hitObject = hit.object
+      gsap.to(this.hitObject.scale,{x:2,y:2,z:2})
+    }else{
+      if(this.hitObject){
+        gsap.to(this.hitObject.scale,{x:1,y:1,z:1})
+        this.hitObject = null
+      }
+    }
   }
 }
